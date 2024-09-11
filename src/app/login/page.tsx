@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { buscarPessoaPorEmailESenha, cadastrarPessoa } from './actions'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 export default function PageLogin() {
   const [name, setName] = useState('')
@@ -23,6 +24,8 @@ export default function PageLogin() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [isCadastrar, setIsCadastrar] = useState(false)
+
+  const { login } = useAuth()
 
   const { toast } = useToast()
   const router = useRouter()
@@ -54,11 +57,11 @@ export default function PageLogin() {
       }
     } else {
       const result = await buscarPessoaPorEmailESenha(email, password)
-      if (!result.result) {
-        setError(result.message)
-      } else {
-        console.log(result.pessoa)
+      if (result.result) {
+        login(result.pessoa!)
         router.push('/')
+      } else {
+        setError(result.message)
       }
     }
   }
