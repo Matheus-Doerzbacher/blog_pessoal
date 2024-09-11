@@ -1,8 +1,9 @@
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'
 import { hashPassword } from '@/lib/utils'
 import { db } from '@/firebase/firebase'
+import { Pessoa } from '@/lib/types/pessoa'
 
-const dbName = 'pessoas'
+const collectionName = 'pessoas'
 
 export async function cadastrarPessoa(
   nome: string,
@@ -15,7 +16,7 @@ export async function cadastrarPessoa(
       return { result: false, message: 'Email já cadastrado' }
     }
 
-    const pessoasRef = collection(db, dbName)
+    const pessoasRef = collection(db, collectionName)
 
     const hashedPassword = await hashPassword(senha)
 
@@ -36,7 +37,7 @@ export async function cadastrarPessoa(
 
 export async function verificarEmailExistente(email: string): Promise<boolean> {
   try {
-    const pessoasRef = collection(db, dbName)
+    const pessoasRef = collection(db, collectionName)
     const q = query(pessoasRef, where('email', '==', email))
     const querySnapshot = await getDocs(q)
 
@@ -44,5 +45,44 @@ export async function verificarEmailExistente(email: string): Promise<boolean> {
   } catch (erro) {
     console.error('Erro ao verificar email:', erro)
     return false
+  }
+}
+
+export async function buscarPessoaPorEmailESenha(
+  email: string,
+  senha: string,
+): Promise<{
+  result: boolean
+  message: string
+  pessoa?: Pessoa
+}> {
+  try {
+    const pessoasRef = collection(db, collectionName)
+    const q = query(pessoasRef, where('email', '==', email))
+    const querySnapshot = await getDocs(q)
+
+    if (querySnapshot.empty) {
+      return { result: false, message: 'Usuário ou senha incorreta' }
+    }
+
+    const pessoa = querySnapshot.docs[0].data()
+    const senhaHash = await hashPassword(senha)
+
+    if (pessoa.senha === senhaHash) {
+      return {
+        result: true,
+        message: 'Usuário autenticado com sucesso',
+        pessoa: {
+          id: querySnapshot.docs[0].id,
+          nome: pessoa.nome,
+          email: pessoa.email,
+        } as Pessoa,
+      }
+    } else {
+      return { result: false, message: 'Usuário ou senha incorreta' }
+    }
+  } catch (erro) {
+    console.error('Erro ao buscar pessoa:', erro)
+    return { result: false, message: 'Erro ao buscar pessoa' }
   }
 }

@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useState } from 'react'
-import { cadastrarPessoa } from './actions'
+import { buscarPessoaPorEmailESenha, cadastrarPessoa } from './actions'
 import { useToast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
 
 export default function PageLogin() {
   const [name, setName] = useState('')
@@ -24,6 +25,7 @@ export default function PageLogin() {
   const [isCadastrar, setIsCadastrar] = useState(false)
 
   const { toast } = useToast()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +51,14 @@ export default function PageLogin() {
           title: 'Conta criada com sucesso',
           description: 'Você pode agora entrar com sua conta.',
         })
+      }
+    } else {
+      const result = await buscarPessoaPorEmailESenha(email, password)
+      if (!result.result) {
+        setError(result.message)
+      } else {
+        console.log(result.pessoa)
+        router.push('/')
       }
     }
   }
