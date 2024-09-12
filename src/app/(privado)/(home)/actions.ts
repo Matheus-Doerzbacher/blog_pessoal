@@ -1,4 +1,4 @@
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore'
 import { db } from '@/firebase/firebase'
 import { Post } from '@/types/post'
 import { Categoria } from '@/types/categorias'
@@ -74,5 +74,23 @@ export async function buscarPostsByCategoria(
   } catch (erro) {
     console.error('Erro ao buscar posts por categoria:', erro)
     return { result: false, message: 'Erro ao buscar posts por categoria' }
+  }
+}
+
+export async function deletarPostagem(postId: string): Promise<{
+  result: boolean
+  message: string
+}> {
+  try {
+    const postRef = doc(db, collectionName, postId)
+    await deleteDoc(postRef)
+
+    return {
+      result: true,
+      message: 'Postagem deletada com sucesso',
+    }
+  } catch (erro) {
+    console.error('Erro ao deletar postagem:', erro)
+    return { result: false, message: 'Erro ao deletar postagem' }
   }
 }

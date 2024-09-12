@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { User } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { Categoria, categorias } from '@/types/categorias'
 
 import { Input } from '@/components/ui/input'
@@ -24,20 +24,30 @@ import { useRouter } from 'next/navigation'
 import { cadastrarPostagem } from './actions'
 import { Post } from '@/types/post'
 import { useToast } from '@/hooks/use-toast'
+import UserNaoLogado from '@/components/user_nao_logado'
 
 export default function PageNovaPostagem() {
   const [titulo, setTitulo] = useState('')
   const [descricao, setDescricao] = useState('')
   const [categoria, setCategoria] = useState<Categoria | null>(null)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   const { toast } = useToast()
   const router = useRouter()
 
+  useLayoutEffect(() => {
+    setLoading(false)
+  }, [user])
+
+  if (loading) {
+    return <div>Carregando...</div>
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
+    setLoading(true)
     if (!titulo || !descricao) {
       setError('Preencha todos os campos')
       return
@@ -69,18 +79,20 @@ export default function PageNovaPostagem() {
   return user ? (
     <div className="container mx-auto px-4 py-8">
       <header className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Nova Postagem</h1>
-        <div className="flex space-x-4">
-          <Link href="/configuracao">
-            <Button variant="outline" className="flex items-center">
-              <User className="mr-2 h-4 w-4" />
-              <span className="mr-2">{user.nome}</span>
-              <span className="sr-only">Perfil e Configurações</span>
-            </Button>
-          </Link>
-        </div>
+        <Link href="/">
+          <h1 className="text-4xl font-bold">Meu Blog</h1>
+        </Link>
+        <Link href="/configuracao">
+          <Button variant="outline" className="flex items-center">
+            <User className="mr-2 h-4 w-4" />
+            <span className="mr-2">{user.nome}</span>
+            <span className="sr-only">Perfil e Configurações</span>
+          </Button>
+        </Link>
       </header>
+
       <main className="space-y-6">
+        <h1 className="text-2xl font-bold">Nova Postagem</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="titulo">Titulo</Label>
@@ -143,6 +155,6 @@ export default function PageNovaPostagem() {
       </main>
     </div>
   ) : (
-    <div>Carregando</div>
+    <UserNaoLogado />
   )
 }

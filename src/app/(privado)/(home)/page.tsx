@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge'
 import { PlusCircle, User, Tag } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { Post } from '@/types/post'
-import { useEffect, useState } from 'react'
-import { buscarPosts, buscarPostsByCategoria } from './actions'
+import { useCallback, useEffect, useState } from 'react'
+import { buscarPosts, buscarPostsByCategoria, deletarPostagem } from './actions'
 import UserNaoLogado from '@/components/user_nao_logado'
 
 export default function Home() {
@@ -21,17 +21,25 @@ export default function Home() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
 
+  const buscarPostsCallback = useCallback(async () => {
+    try {
+      const resultado = await buscarPosts()
+      if (resultado.result) {
+        setPosts(resultado.posts || [])
+      } else {
+        console.error(resultado.message)
+      }
+    } catch (erro) {
+      console.error('Erro ao buscar posts:', erro)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (!user) return
     if (user?.categoria?.valor === 'admin') {
-      buscarPosts().then((result) => {
-        if (result.result) {
-          setPosts(result.posts || [])
-        } else {
-          console.error(result.message)
-        }
-        setLoading(false)
-      })
+      buscarPostsCallback()
     } else {
       buscarPostsByCategoria(user?.categoria).then((result) => {
         if (result.result) {
@@ -42,7 +50,7 @@ export default function Home() {
         setLoading(false)
       })
     }
-  }, [user])
+  }, [buscarPostsCallback, user])
 
   if (loading) {
     return <div>Carregando...</div>
@@ -89,9 +97,17 @@ export default function Home() {
               <p className="line-clamp-3">{post.descricao}</p>
             </CardContent>
             <CardFooter className="pt-2 flex justify-end">
-              <Link href={`/postagem/${post.id}`}>
-                <Button variant="outline">Ler mais</Button>
-              </Link>
+              {user?.id === post.autor.id && (
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    deletarPostagem(post.id || '')
+                    buscarPostsCallback()
+                  }}
+                >
+                  Excluir
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}
