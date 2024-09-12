@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { PlusCircle, User, Tag } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { Post } from '@/types/post'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { buscarPosts, buscarPostsByCategoria, deletarPostagem } from './actions'
 import UserNaoLogado from '@/components/user_nao_logado'
 
@@ -23,34 +23,33 @@ export default function Home() {
 
   const buscarPostsCallback = useCallback(async () => {
     try {
-      const resultado = await buscarPosts()
-      if (resultado.result) {
-        setPosts(resultado.posts || [])
+      if (user?.categoria?.valor === 'admin') {
+        const resultado = await buscarPosts()
+        if (resultado.result) {
+          setPosts(resultado.posts || [])
+        } else {
+          console.error(resultado.message)
+        }
       } else {
-        console.error(resultado.message)
+        buscarPostsByCategoria(user?.categoria).then((result) => {
+          if (result.result) {
+            setPosts(result.posts || [])
+          } else {
+            console.error(result.message)
+          }
+          setLoading(false)
+        })
       }
     } catch (erro) {
       console.error('Erro ao buscar posts:', erro)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user])
 
-  useEffect(() => {
-    if (!user) return
-    if (user?.categoria?.valor === 'admin') {
-      buscarPostsCallback()
-    } else {
-      buscarPostsByCategoria(user?.categoria).then((result) => {
-        if (result.result) {
-          setPosts(result.posts || [])
-        } else {
-          console.error(result.message)
-        }
-        setLoading(false)
-      })
-    }
-  }, [buscarPostsCallback, user])
+  useLayoutEffect(() => {
+    buscarPostsCallback()
+  }, [buscarPostsCallback])
 
   if (loading) {
     return <div>Carregando...</div>
