@@ -9,6 +9,7 @@ export async function cadastrarPessoa(
   nome: string,
   email: string,
   senha: string,
+  categoria: string,
 ) {
   try {
     const emailExistente = await verificarEmailExistente(email)
@@ -24,6 +25,7 @@ export async function cadastrarPessoa(
       nome,
       email,
       senha: hashedPassword,
+      categoria,
     }
 
     const docRef = await addDoc(pessoasRef, novaPessoa)
@@ -76,6 +78,7 @@ export async function buscarPessoaPorEmailESenha(
           id: querySnapshot.docs[0].id,
           nome: pessoa.nome,
           email: pessoa.email,
+          categoria: pessoa.categoria,
         } as Pessoa,
       }
     } else {

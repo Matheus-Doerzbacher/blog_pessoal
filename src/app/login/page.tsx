@@ -10,6 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useState } from 'react'
 import { buscarPessoaPorEmailESenha, cadastrarPessoa } from './actions'
@@ -20,6 +29,7 @@ import { useAuth } from '@/context/AuthContext'
 export default function PageLogin() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [categoria, setCategoria] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -40,7 +50,7 @@ export default function PageLogin() {
         return
       }
 
-      const result = await cadastrarPessoa(name, email, password)
+      const result = await cadastrarPessoa(name, email, password, categoria)
 
       if (!result.result) {
         setError(result.message)
@@ -130,6 +140,29 @@ export default function PageLogin() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                 />
+              </div>
+            )}
+            {isCadastrar && (
+              <div className="space-y-2">
+                <Label>Selecione a Categoria</Label>
+                <Select
+                  value={categoria}
+                  onValueChange={(value) => setCategoria(value)}
+                >
+                  <SelectTrigger className="">
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Categorias</SelectLabel>
+                      <SelectItem value="ciencia">Ciência</SelectItem>
+                      <SelectItem value="pessoal">Pessoal</SelectItem>
+                      <SelectItem value="noticias">Notícias</SelectItem>
+                      <SelectItem value="software">Software</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             )}
             {error && (

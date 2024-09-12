@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           email: user.email,
           nome: user.nome,
         }
-        console.log('Payload do usuário:', userPayload)
+
         new SignJWT(userPayload)
           .setProtectedHeader({ alg: 'HS256' })
           .setExpirationTime('1h')
