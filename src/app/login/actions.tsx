@@ -1,7 +1,8 @@
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'
 import { hashPassword } from '@/lib/utils'
 import { db } from '@/firebase/firebase'
-import { Pessoa } from '@/lib/types/pessoa'
+import { Pessoa } from '@/types/pessoa'
+import { Categoria } from '@/types/categorias'
 
 const collectionName = 'pessoas'
 
@@ -9,7 +10,7 @@ export async function cadastrarPessoa(
   nome: string,
   email: string,
   senha: string,
-  categoria: string,
+  categoria: Categoria,
 ) {
   try {
     const emailExistente = await verificarEmailExistente(email)
@@ -28,8 +29,7 @@ export async function cadastrarPessoa(
       categoria,
     }
 
-    const docRef = await addDoc(pessoasRef, novaPessoa)
-    console.log('Pessoa cadastrada com ID:', docRef.id)
+    await addDoc(pessoasRef, novaPessoa)
     return { result: true, message: 'Pessoa cadastrada com sucesso' }
   } catch (erro) {
     console.error('Erro ao cadastrar pessoa:', erro)

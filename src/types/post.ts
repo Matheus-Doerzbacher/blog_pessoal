@@ -5,7 +5,7 @@ export interface Post {
   id?: string
   titulo: string
   descricao: string
-  data: Date
+  data: string
   categoria: Categoria
   autor: Pessoa
 }

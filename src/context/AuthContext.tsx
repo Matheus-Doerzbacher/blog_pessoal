@@ -7,7 +7,7 @@ import React, {
   ReactNode,
   useEffect,
 } from 'react'
-import { Pessoa } from '@/lib/types/pessoa'
+import { Pessoa } from '@/types/pessoa'
 import Cookies from 'js-cookie'
 import { SignJWT, jwtVerify } from 'jose'
 
@@ -32,9 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = Cookies.get('auth_token')
     if (token) {
       const { payload } = await jwtVerify(token, SECRET_KEY)
-      console.log('Payload:', payload)
       const user = payload as unknown as Pessoa
-      console.log('User:', user)
       setUser(user)
     }
     setLoading(false)
@@ -51,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: user.id,
           email: user.email,
           nome: user.nome,
+          categoria: user.categoria,
         }
 
         new SignJWT(userPayload)

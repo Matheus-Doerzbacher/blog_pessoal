@@ -11,53 +11,43 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { PlusCircle, User, Tag } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
-import { Post } from '@/lib/types/post'
-
-// Simulando dados de postagens
-const posts: Post[] = [
-  {
-    id: '1',
-    titulo: 'Primeira Postagem',
-    descricao:
-      'Conteúdo da primeira postagem... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    data: new Date('2023-08-01'),
-    autor: {
-      nome: 'João Silva',
-      email: 'joao.silva@example.com',
-      categoria: 'ciência',
-    },
-    categoria: { nome: 'Ciência', valor: 'ciencia' },
-  },
-  {
-    id: '2',
-    titulo: 'Segunda Postagem',
-    descricao:
-      'Conteúdo da segunda postagem... Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    data: new Date('2023-08-05'),
-    autor: {
-      nome: 'Maria Santos',
-      email: 'maria.santos@example.com',
-      categoria: 'pessoal',
-    },
-    categoria: { nome: 'Pessoal', valor: 'pessoal' },
-  },
-  {
-    id: '3',
-    titulo: 'Terceira Postagem',
-    descricao:
-      'Conteúdo da terceira postagem... Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
-    data: new Date('2023-08-10'),
-    autor: {
-      nome: 'Pedro Oliveira',
-      email: 'pedro.oliveira@example.com',
-      categoria: 'Software',
-    },
-    categoria: { nome: 'Software', valor: 'software' },
-  },
-]
+import { Post } from '@/types/post'
+import { useEffect, useState } from 'react'
+import { buscarPosts, buscarPostsByCategoria } from './actions'
+import UserNaoLogado from '@/components/user_nao_logado'
 
 export default function Home() {
+  const [posts, setPosts] = useState<Post[]>([])
   const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+    if (user?.categoria?.valor === 'admin') {
+      buscarPosts().then((result) => {
+        if (result.result) {
+          setPosts(result.posts || [])
+        } else {
+          console.error(result.message)
+        }
+        setLoading(false)
+      })
+    } else {
+      buscarPostsByCategoria(user?.categoria).then((result) => {
+        if (result.result) {
+          setPosts(result.posts || [])
+        } else {
+          console.error(result.message)
+        }
+        setLoading(false)
+      })
+    }
+  }, [user])
+
+  if (loading) {
+    return <div>Carregando...</div>
+  }
+
   return user ? (
     <div className="container mx-auto px-4 py-8">
       <header className="flex justify-between items-center mb-8">
@@ -92,7 +82,7 @@ export default function Home() {
                 <User className="mr-2 h-4 w-4" />
                 <span>{post.autor.nome}</span>
                 <span className="mx-2">•</span>
-                <span>{post.data.toLocaleDateString()}</span>
+                <span>{new Date(post.data).toLocaleDateString()}</span>
               </div>
             </CardHeader>
             <CardContent className="py-2">
@@ -108,6 +98,6 @@ export default function Home() {
       </main>
     </div>
   ) : (
-    <div>Carregando</div>
+    <UserNaoLogado />
   )
 }

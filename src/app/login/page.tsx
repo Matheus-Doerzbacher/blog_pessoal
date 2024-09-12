@@ -25,12 +25,12 @@ import { buscarPessoaPorEmailESenha, cadastrarPessoa } from './actions'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { categorias } from '@/lib/types/categorias'
+import { Categoria, categorias } from '@/types/categorias'
 
 export default function PageLogin() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [categoria, setCategoria] = useState('')
+  const [categoria, setCategoria] = useState<Categoria | null>(null)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -48,6 +48,11 @@ export default function PageLogin() {
     if (isCadastrar) {
       if (password !== confirmPassword) {
         setError('As senhas não coincidem.')
+        return
+      }
+
+      if (!categoria) {
+        setError('Selecione uma categoria.')
         return
       }
 
@@ -147,8 +152,11 @@ export default function PageLogin() {
               <div className="space-y-2">
                 <Label>Selecione a Categoria</Label>
                 <Select
-                  value={categoria}
-                  onValueChange={(value) => setCategoria(value)}
+                  value={categoria?.valor}
+                  onValueChange={(value) => {
+                    const categ = categorias.find((c) => c.valor === value)
+                    setCategoria(categ ?? null)
+                  }}
                 >
                   <SelectTrigger className="">
                     <SelectValue placeholder="Selecione uma categoria" />
