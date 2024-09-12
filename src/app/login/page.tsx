@@ -58,8 +58,13 @@ export default function PageLogin() {
     } else {
       const result = await buscarPessoaPorEmailESenha(email, password)
       if (result.result) {
-        login(result.pessoa!)
-        router.push('/')
+        const pessoa = result.pessoa
+        if (pessoa) {
+          login(pessoa)
+          router.push('/')
+        } else {
+          setError('Erro ao buscar usuário')
+        }
       } else {
         setError(result.message)
       }
