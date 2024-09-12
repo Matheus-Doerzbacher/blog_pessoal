@@ -37,7 +37,6 @@ export default function Home() {
           } else {
             console.error(result.message)
           }
-          setLoading(false)
         })
       }
     } catch (erro) {
@@ -101,7 +100,7 @@ export default function Home() {
                   variant="destructive"
                   onClick={() => {
                     deletarPostagem(post.id || '')
-                    buscarPostsCallback()
+                    setPosts(posts.filter((p) => p.id !== post.id))
                   }}
                 >
                   Excluir
