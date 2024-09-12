@@ -25,6 +25,7 @@ import { buscarPessoaPorEmailESenha, cadastrarPessoa } from './actions'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { categorias } from '@/lib/types/categorias'
 
 export default function PageLogin() {
   const [name, setName] = useState('')
@@ -155,11 +156,14 @@ export default function PageLogin() {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Categorias</SelectLabel>
-                      <SelectItem value="ciencia">Ciência</SelectItem>
-                      <SelectItem value="pessoal">Pessoal</SelectItem>
-                      <SelectItem value="noticias">Notícias</SelectItem>
-                      <SelectItem value="software">Software</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      {categorias.map((categoria) => (
+                        <SelectItem
+                          key={categoria.valor}
+                          value={categoria.valor}
+                        >
+                          {categoria.nome}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
