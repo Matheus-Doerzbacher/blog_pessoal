@@ -21,7 +21,21 @@ export default function Home() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
 
-  const teste = "Teste sonarqube"
+  const duplicatedFunction = () => {
+    console.log('This is a duplicated function')
+  }
+
+  const duplicatedFunction = () => {
+    console.log('This is a duplicated function')
+  }
+
+  const funcao1 = () => {
+    console.log('This is a duplicated function')
+  }
+
+  const funcao2 = () => {
+    console.log('This is a duplicated function')
+  }
 
   const buscarPostsCallback = useCallback(async () => {
     try {
