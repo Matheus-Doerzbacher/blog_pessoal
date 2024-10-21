@@ -21,6 +21,8 @@ export default function Home() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(true)
 
+  const teste = "Teste sonarqube"
+
   const buscarPostsCallback = useCallback(async () => {
     try {
       if (user?.categoria?.valor === 'admin') {
